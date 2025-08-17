@@ -1,0 +1,110 @@
+بالتأكيد. إليك ملف JSON شامل ومنظم يجمع كل المتطلبات (الوظيفية وغير الوظيفية)، والهيكلية التقنية، والهوية البصرية لمشروع "منظّم".
+
+هذا الملف مصمم ليكون مرجعًا مركزيًا للمشروع.
+
+code
+JSON
+download
+content_copy
+expand_less
+
+{
+  "projectDetails": {
+    "projectName": "Munaẓẓim (منظّم)",
+    "projectDescription": "A local CRM and WhatsApp campaign management system designed for 'Easily' to streamline, target, and professionalize their communication.",
+    "version": "1.0.0"
+  },
+  "technicalStack": {
+    "environment": "Local Web Application",
+    "backend": {
+      "language": "Python",
+      "framework": "Flask"
+    },
+    "database": {
+      "system": "SQLite",
+      "reason": "Serverless, file-based, and integrated with Python, making it ideal for a local application."
+    },
+    "frontend": {
+      "structure": "HTML5",
+      "styling": {
+        "language": "CSS3",
+        "framework": "Bootstrap 5"
+      },
+      "interactivity": "Vanilla JavaScript"
+    },
+    "templatingEngine": {
+      "name": "Jinja2",
+      "integration": "Comes built-in with Flask for dynamic data rendering."
+    }
+  },
+  "functionalRequirements": [
+    {
+      "feature": "Contact Management (CRM Core)",
+      "description": "Core functionality for managing contacts.",
+      "userStories": [
+        "As a user, I can add a new contact with name, phone number, and source.",
+        "As a user, I can view all contacts in a searchable and filterable table.",
+        "As a user, I can edit an existing contact's details.",
+        "As a user, I can assign one or more 'Tags' to a contact to categorize them.",
+        "The system must prevent the addition of duplicate phone numbers."
+      ]
+    },
+    {
+      "feature": "Campaign Management",
+      "description": "Functionality for creating, managing, and preparing campaigns.",
+      "userStories": [
+        "As a user, I can create a new campaign with a unique, descriptive name.",
+        "As a user, I can build a target audience by filtering contacts based on their assigned 'Tags'.",
+        "As a user, I can write a personalized message using variables like `[الاسم]`.",
+        "As a user, I can save a campaign as a draft to continue later.",
+        "As a user, I can export the final contact list and its corresponding message for use in an external sender tool."
+      ]
+    },
+    {
+      "feature": "Anti-Annoyance Shield",
+      "description": "Prevents sending duplicate or irrelevant campaigns to the same contacts.",
+      "userStories": [
+        "The system must log which contacts have received a specific campaign.",
+        "When building a new campaign, I can choose to automatically exclude contacts who have already received this campaign."
+      ]
+    },
+    {
+      "feature": "Dashboard",
+      "description": "Provides an at-a-glance overview of the system's key metrics.",
+      "userStories": [
+        "As a user, I can see the total number of contacts in the system.",
+        "As a user, I can see how many new contacts were added this month.",
+        "As a user, I can see a list of the most recently sent campaigns."
+      ]
+    }
+  ],
+  "nonFunctionalRequirements": {
+    "performance": "The system must load and filter contacts in under 2 seconds for a database of up to 10,000 entries.",
+    "security": "All user data must be stored locally on the user's machine. The application must not make any unauthorized outgoing network requests with this data.",
+    "usability": "The user interface must be intuitive, clean, and follow modern UI/UX principles. A new user should be able to create their first campaign without requiring extensive training.",
+    "maintainability": "The code must be well-structured, commented, and organized to allow for easy future updates and feature additions.",
+    "portability": "The application should be able to run on any major operating system (Windows, macOS, Linux) that has a standard Python environment."
+  },
+  "styleGuide": {
+    "colors": {
+      "primaryRed": "rgb(191, 30, 45)",
+      "textDark": "rgb(54, 54, 54)",
+      "textGray": "rgb(120, 120, 120)",
+      "backgroundLight": "#f7f7f9",
+      "white": "rgb(255, 255, 255)",
+      "borderColor": "#e0e0e0"
+    },
+    "typography": {
+      "fontFamily": "'Poppins', sans-serif",
+      "baseFontSize": "16px",
+      "headings": {
+        "h1": "28px",
+        "h2": "18px"
+      }
+    },
+    "layout": {
+      "borderRadius": "8px",
+      "boxShadow": "0 4px 12px rgba(0, 0, 0, 0.05)"
+    }
+  }
+}
