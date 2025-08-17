@@ -1,0 +1,29 @@
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Instance folder (contains secrets and database)
+instance/
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Editor/IDE configuration
+.idea/
+.vscode/
+*.swp
+*~
+
+# Testing artifacts
+.pytest_cache/
+.coverage
+htmlcov/
