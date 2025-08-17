@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}تعديل جهة الاتصال{% endblock %}
+
+{% block content %}
+<section id="edit-contact" class="view active">
+    <div class="page-header">
+        <h1>تعديل: {{ contact.name }}</h1>
+        <a href="{{ url_for('main.list_contacts') }}" class="btn btn-secondary">العودة إلى القائمة</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">البيانات الحالية</h2>
+            <p><strong>الاسم:</strong> {{ contact.name }}</p>
+            <p><strong>رقم الهاتف:</strong> {{ contact.phone }}</p>
+            <p><strong>المصدر:</strong> {{ contact.source }}</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">إدارة الوسوم (Tags)</h2>
+            <p>الوسوم الحالية:</p>
+            <div>
+                {% for tag in contact.tags %}
+                    <span class="tag">{{ tag.name }}</span>
+                {% else %}
+                    <p class="text-muted">لا توجد وسوم مرتبطة بجهة الاتصال هذه.</p>
+                {% endfor %}
+            </div>
+            <hr>
+            <form method="post">
+                <div class="form-group">
+                    <label for="tags">إضافة وسوم جديدة</label>
+                    <input type="text" id="tags" name="tags" class="form-control" placeholder="اكتب الوسوم مفصولة بفاصلة (e.g. tag1, tag2)">
+                    <p class="description">سيتم إنشاء أي وسوم غير موجودة تلقائيًا.</p>
+                </div>
+                <button type="submit" class="btn btn-primary">حفظ الوسوم</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}إنشاء حملة جديدة{% endblock %}
+
+{% block content %}
+<form method="post">
+<section id="new-campaign" class="view active">
+    <div class="page-header">
+        <h1>إنشاء حملة جديدة</h1>
+        <div class="final-actions">
+            <button type="submit" name="action" value="save_draft" class="btn btn-secondary">حفظ كمسودة</button>
+            <button type="submit" name="action" value="export" class="btn btn-primary">🚀 تصدير وإطلاق الحملة</button>
+        </div>
+    </div>
+
+    <div class="campaign-container">
+        <!-- القسم الأيسر: منطقة العمل -->
+        <div class="campaign-form">
+            <div class="card">
+                <h2>1. تفاصيل الحملة والجمهور</h2>
+                <div class="form-group">
+                    <label for="campaign-name">اسم الحملة</label>
+                    <input type="text" id="campaign-name" name="campaign_name" placeholder="مثال: إعلان كورس الإكسل - أغسطس 2025" required>
+                </div>
+                <div class="form-group">
+                    <label for="target-tags">الجمهور المستهدف (بالوسوم)</label>
+                    <input type="text" id="target-tags" placeholder="اكتب وسماً ثم اضغط Enter...">
+                    <input type="hidden" name="tags" id="hidden-tags">
+                    <div class="selected-tags">
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <h2>2. صياغة الرسالة</h2>
+                <div class="form-group">
+                    <label for="campaign-message">نص الرسالة</label>
+                    <textarea id="campaign-message" name="message" rows="10" placeholder="مرحباً يا [الاسم]، يسعدنا في إيزلي أن نقدم لك..." required></textarea>
+                    <p class="description">نصيحة: استخدم المتغير `[الاسم]` لجعل الرسالة شخصية.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- القسم الأيمن: الملخص المباشر -->
+        <div class="campaign-summary">
+            <div class="card sticky-card">
+                <h3>ملخص الحملة</h3>
+                <div class="summary-item">
+                    <span class="label">اسم الحملة</span>
+                    <span class="value" id="summary-name">--</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">الجمهور</span>
+                    <span class="value" id="summary-tags"><span class="tag">خريج_ICDL</span></span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">جهات الاتصال المطابقة</span>
+                    <span class="value stat-number" id="summary-count">88</span>
+                </div>
+                <div class="anti-spam-shield">
+                    <input type="checkbox" id="anti-spam" name="anti_spam_shield_active" checked>
+                    <label for="anti-spam">تفعيل درع منع الإزعاج</label>
+                </div>
+                <p class="description">سيتم تلقائيًا استبعاد أي رقم استلم هذه الحملة من قبل.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

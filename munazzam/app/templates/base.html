@@ -1,62 +1,62 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}نظام منظّم{% endblock %}</title>
+    <!-- استيراد ملف الأنماط الرئيسي -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- استيراد الخطوط من Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ============================ -->
+        <!-- ===== القائمة الجانبية ===== -->
+        <!-- ============================ -->
+        <aside class="sidebar">
+            <div class="logo profile-section">
+                <!-- The user needs to provide profile.jpg, it will be broken for now -->
+                <img src="{{ url_for('static', filename='profile.jpg') }}" alt="Profile Image" class="profile-pic" style="background-color: #ccc;">
+                <h2>تاج السر خالد</h2>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('main.dashboard') }}" class="nav-link" data-view="dashboard">
+                        <span class="icon">📊</span> لوحة التحكم
+                    </a></li>
+                    <li><a href="{{ url_for('main.list_contacts') }}" class="nav-link" data-view="contacts">
+                        <span class="icon">👥</span> جهات الاتصال
+                    </a></li>
+                    <li><a href="{{ url_for('main.new_campaign') }}" class="nav-link" data-view="new-campaign">
+                        <span class="icon">🚀</span> حملة جديدة
+                    </a></li>
+                </ul>
+            </nav>
+        </aside>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" integrity="sha384-nU14brUcp6StFntEOOEBvcJm4huWjB0OcIeQ3fltAfSmuZFrkAif0T+UtNGlKKQv" crossorigin="anonymous">
+        <!-- ============================ -->
+        <!-- ===== المحتوى الرئيسي ====== -->
+        <!-- ============================ -->
+        <main class="main-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
 
-    <!-- Project Style Guide -->
-    <style>
-      body {
-        background-color: #f7f7f9;
-        font-family: 'Poppins', sans-serif; /* A good font for both languages, will need to be imported if not available */
-      }
-      .navbar {
-        background-color: #fff;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      }
-      .card {
-        border-radius: 8px;
-        border-color: #e0e0e0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      }
-      .btn-primary {
-        background-color: rgb(191, 30, 45);
-        border-color: rgb(191, 30, 45);
-      }
-      h1, h2, h3, h4, h5, h6 {
-        color: rgb(54, 54, 54);
-      }
-    </style>
+            {% block content %}{% endblock %}
+        </main>
+    </div>
 
-    <title>{% block title %}منظّم{% endblock %}</title>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-light mb-4">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">نظام منظّم</a>
-        </div>
-    </nav>
-
-    <main class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-
-        {% block content %}{% endblock %}
-    </main>
-
-    <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-  </body>
+    <!-- استيراد ملف الجافاسكربت -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
 </html>

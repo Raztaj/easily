@@ -37,9 +37,12 @@ def create_app(test_config=None):
     from . import db_cli
     db_cli.init_app(app)
 
-    # Import and register the blueprint
+    # Import and register blueprints
     from . import routes
     app.register_blueprint(routes.bp)
     app.add_url_rule('/', endpoint='index')
+
+    from . import api
+    app.register_blueprint(api.bp)
 
     return app

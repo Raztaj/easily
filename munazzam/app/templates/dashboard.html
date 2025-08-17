@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}لوحة التحكم{% endblock %}
+
+{% block content %}
+<section id="dashboard" class="view active">
+    <div class="page-header">
+        <h1>صباح الخير، تاج السر</h1>
+        <p class="subtitle">إليك ملخص الأنشطة في نظام منظّم.</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="card">
+            <h3>إجمالي جهات الاتصال</h3>
+            <p class="stat-number">{{ stats.total_contacts | default('0') }}</p>
+        </div>
+        <div class="card">
+            <h3>اتصالات جديدة (هذا الشهر)</h3>
+            <p class="stat-number">{{ stats.new_contacts_monthly | default('0') }}</p>
+        </div>
+        <div class="card">
+            <h3>الحملات المُرسلة</h3>
+            <p class="stat-number">{{ stats.campaigns_sent | default('0') }}</p>
+        </div>
+    </div>
+
+    <div class="recent-campaigns card">
+        <h2>آخر الحملات المُرسلة</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>اسم الحملة</th>
+                    <th>تاريخ الإرسال</th>
+                    <th>الجمهور المستهدف</th>
+                    <th>عدد المستلمين</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for campaign in recent_campaigns %}
+                <tr>
+                    <td>{{ campaign.name }}</td>
+                    <td>{{ campaign.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% for tag in campaign.tags %}
+                            <span class="tag">{{ tag.name }}</span>
+                        {% endfor %}
+                    </td>
+                    <td>{{ campaign.recipients | length }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">لم يتم إرسال أي حملات بعد.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

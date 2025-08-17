@@ -1,10 +1,11 @@
-from app.models import Contact
+from app.models import Contact, Tag, Campaign
+from app import db
 
 def test_index_redirect(client):
-    """Test that the index page redirects to the contacts list."""
+    """Test that the index page redirects to the dashboard."""
     response = client.get('/')
     assert response.status_code == 302
-    assert response.headers['Location'] == '/contacts'
+    assert response.headers['Location'] == '/dashboard'
 
 def test_view_contacts_empty(client):
     """Test that the contacts page shows a message when no contacts exist."""
@@ -64,3 +65,157 @@ def test_add_and_view_arabic_contact(client):
     assert response.status_code == 200
     # Search for the UTF-8 encoded version of the name in the response
     assert arabic_name.encode('utf-8') in response.data
+
+def test_add_and_view_contact_with_tag(client, app):
+    """Test adding a contact, then adding a tag to it."""
+    # 1. Add a contact
+    client.post('/contacts/new', data={'name': 'Tagged User', 'phone': '555444333'})
+
+    # 2. Find the contact in the database to get its ID
+    with app.app_context():
+        contact = Contact.query.filter_by(phone='555444333').first()
+        assert contact is not None
+        contact_id = contact.id
+
+    # 3. Go to the edit page and add a tag
+    client.post(f'/contacts/{contact_id}/edit', data={'tags': 'VIP, test-tag'})
+
+    # 4. Check if the tags are displayed on the main contacts page
+    response = client.get('/contacts')
+    assert response.status_code == 200
+    assert b'Tagged User' in response.data
+    assert b'<span class="tag">VIP</span>' in response.data
+    assert b'<span class="tag">test-tag</span>' in response.data
+
+def test_campaign_creation_and_api(client, app):
+    """Test the contact count API and saving a campaign draft."""
+    # 1. Setup: Create a contact and a tag
+    with app.app_context():
+        tag1 = Tag(name='customer')
+        contact1 = Contact(name='Test Customer', phone='123123123', tags=[tag1])
+        db.session.add(contact1)
+        db.session.commit()
+
+    # 2. Test the API endpoint
+    response = client.post('/api/contacts/count', json={'tags': ['customer']})
+    assert response.status_code == 200
+    assert response.json['count'] == 1
+
+    response = client.post('/api/contacts/count', json={'tags': ['non-existent-tag']})
+    assert response.status_code == 200
+    assert response.json['count'] == 0
+
+    # 3. Test saving a campaign draft
+    client.post('/campaigns/new', data={
+        'campaign_name': 'Test Campaign',
+        'message': 'This is a test message.',
+        'tags': 'customer, new-tag',
+        'action': 'save_draft'
+    })
+
+    # 4. Verify the campaign was created in the database
+    with app.app_context():
+        campaign = Campaign.query.filter_by(name='Test Campaign').first()
+        assert campaign is not None
+        assert campaign.message == 'This is a test message.'
+        assert len(campaign.tags) == 2
+        tag_names = {tag.name for tag in campaign.tags}
+        assert 'customer' in tag_names
+        assert 'new-tag' in tag_names
+
+def test_campaign_export(client, app):
+    """Test the campaign export functionality."""
+    # 1. Setup: Create contacts with different tags
+    with app.app_context():
+        tag_a = Tag(name='group-a')
+        tag_b = Tag(name='group-b')
+        c1 = Contact(name='User A', phone='111', tags=[tag_a])
+        c2 = Contact(name='User B', phone='222', tags=[tag_b])
+        c3 = Contact(name='User AB', phone='333', tags=[tag_a, tag_b])
+        db.session.add_all([c1, c2, c3])
+        db.session.commit()
+
+    # 2. Export a campaign targeting 'group-a'
+    response = client.post('/campaigns/new', data={
+        'campaign_name': 'Export Test 1',
+        'message': 'Hello [الاسم]',
+        'tags': 'group-a',
+        'action': 'export'
+    })
+
+    assert response.status_code == 200
+    assert response.mimetype == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+    # 3. Verify the content of the Excel file
+    from openpyxl import load_workbook
+    from io import BytesIO
+
+    workbook = load_workbook(BytesIO(response.data))
+    sheet = workbook.active
+    rows = list(sheet.values)
+    assert rows[0] == ('PhoneNumber', 'Message')
+    assert rows[1] == ('111', 'Hello User A')
+    assert rows[2] == ('333', 'Hello User AB')
+    assert len(rows) == 3 # Header + 2 contacts
+
+    # 4. Verify that recipients were logged
+    with app.app_context():
+        campaign = Campaign.query.filter_by(name='Export Test 1').first()
+        assert len(campaign.recipients) == 2
+
+    # 5. Test Anti-Annoyance Shield
+    response = client.post('/campaigns/new', data={
+        'campaign_name': 'Export Test 1', # Same name
+        'message': 'Hello again [الاسم]',
+        'tags': 'group-a',
+        'action': 'export',
+        'anti_spam_shield_active': 'on'
+    }, follow_redirects=True)
+
+    # The app should redirect back to the page with a flash message
+    assert response.status_code == 200
+    # Check for the Arabic warning message "لا يوجد مستلمين جدد لهذه الحملة."
+    assert b'\xd9\x84\xd8\xa7 \xd9\x8a\xd9\x88\xd8\xac\xd8\xaf \xd9\x85\xd8\xb3\xd8\xaa\xd9\x84\xd9\x85\xd9\x8a\xd9\x86 \xd8\xac\xd8\xaf\xd8\xaf' in response.data
+
+    # And verify the database state again to be sure
+    with app.app_context():
+        campaign = Campaign.query.filter_by(name='Export Test 1').first()
+        # The number of recipients should NOT have changed.
+        assert len(campaign.recipients) == 2
+
+def test_dashboard_stats(client, app):
+    """Test that the dashboard displays correct stats."""
+    from datetime import datetime, timedelta
+
+    with app.app_context():
+        # Create 2 contacts now
+        db.session.add(Contact(name='New User 1', phone='999'))
+        db.session.add(Contact(name='New User 2', phone='888'))
+
+        # Create 1 contact last month
+        last_month = datetime.utcnow() - timedelta(days=40)
+        db.session.add(Contact(name='Old User', phone='777', created_at=last_month))
+
+        # Create 1 sent campaign
+        sent_campaign = Campaign(name='Sent Campaign', message='Test')
+        sent_campaign.recipients.append(Contact.query.get(1))
+        db.session.add(sent_campaign)
+
+        # Create 1 draft campaign (no recipients)
+        db.session.add(Campaign(name='Draft Campaign', message='Draft'))
+
+        db.session.commit()
+
+    response = client.get('/dashboard', follow_redirects=True)
+    assert response.status_code == 200
+
+    # Check for total contacts: 3
+    assert b'<p class="stat-number">3</p>' in response.data
+    # Check for new contacts this month: 2
+    assert b'<p class="stat-number">2</p>' in response.data
+    # Check for sent campaigns: 1
+    assert b'<p class="stat-number">1</p>' in response.data
+
+    # Check for recent campaigns table
+    assert b'Sent Campaign' in response.data
+    assert b'Draft Campaign' not in response.data

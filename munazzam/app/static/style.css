@@ -1,0 +1,346 @@
+/* ================================== */
+/* ===== المتغيرات والهوية البصرية ===== */
+/* ================================== */
+:root {
+    --easily-red: rgb(191, 30, 45);
+    --text-dark: rgb(54, 54, 54);
+    --text-gray: rgb(120, 120, 120);
+    --background-light: #f7f7f9;
+    --white: rgb(255, 255, 255);
+    --border-color: #e0e0e0;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* ================================== */
+/* ===== الأنماط العامة والتأسيس ===== */
+/* ================================== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    background-color: var(--background-light);
+    color: var(--text-dark);
+}
+
+.app-container {
+    display: flex;
+}
+
+/* ================================== */
+/* ===== القائمة الجانبية (Sidebar) ===== */
+/* ================================== */
+.sidebar {
+    width: 250px;
+    background-color: var(--white);
+    height: 100vh;
+    padding: 20px;
+    border-left: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.logo.profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.profile-pic {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.profile-section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.sidebar nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: var(--text-gray);
+    font-weight: 500;
+    border-radius: var(--border-radius);
+    transition: all 0.2s ease-in-out;
+}
+
+.sidebar nav a:hover {
+    background-color: var(--background-light);
+    color: var(--text-dark);
+}
+
+.sidebar nav a.active {
+    background-color: var(--easily-red);
+    color: var(--white);
+}
+
+/* ================================== */
+/* ===== المحتوى الرئيسي (Main Content) ===== */
+/* ================================== */
+.main-content {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+    height: 100vh;
+}
+
+.view {
+    display: none;
+}
+
+.view.active {
+    display: block;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-size: 28px;
+    margin: 0;
+}
+
+.subtitle {
+    margin: 5px 0 0;
+    color: var(--text-gray);
+}
+
+/* ================================== */
+/* ===== المكونات العامة (Components) ===== */
+/* ================================== */
+.card {
+    background-color: var(--white);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    border: 1px solid var(--border-color);
+    margin-bottom: 25px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+    background-color: var(--easily-red);
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-secondary {
+    background-color: #e0e0e0;
+    color: var(--text-dark);
+}
+
+.tag {
+    display: inline-block;
+    background-color: #eee;
+    color: var(--text-dark);
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 2px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 15px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-color);
+}
+
+thead th {
+    color: var(--text-gray);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+tbody tr:hover {
+    background-color: var(--background-light);
+}
+
+/* ================================== */
+/* ===== أنماط شاشة لوحة التحكم ===== */
+/* ================================== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.stat-number {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--easily-red);
+}
+
+/* ================================== */
+/* ===== أنماط شاشة جهات الاتصال ===== */
+/* ================================== */
+.toolbar input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-family: 'Poppins', sans-serif;
+}
+
+.action-link {
+    color: var(--easily-red);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* ================================== */
+/* ===== أنماط التصميم الحديث للحملات ===== */
+/* ================================== */
+.campaign-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.campaign-form h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.sticky-card {
+    position: sticky;
+    top: 40px;
+}
+
+.campaign-summary h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.summary-item:last-of-type {
+    border-bottom: none;
+}
+
+.summary-item .label {
+    color: var(--text-gray);
+    font-weight: 500;
+}
+
+.summary-item .value {
+    font-weight: 600;
+}
+
+.campaign-summary .stat-number {
+    font-size: 24px;
+}
+
+.final-actions .btn-primary {
+    font-size: 16px;
+    padding: 12px 25px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-family: 'Poppins', sans-serif;
+}
+
+.form-group .description {
+    font-size: 12px;
+    color: var(--text-gray);
+    margin-top: 8px;
+}
+
+.selected-tags .tag button {
+    border: none;
+    background: none;
+    color: var(--text-gray);
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.anti-spam-shield {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--background-light);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-top: 20px;
+}
+.anti-spam-shield input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+/* تصميم متجاوب (Responsive) للشاشات الصغيرة */
+@media (max-width: 992px) {
+    .campaign-container {
+        grid-template-columns: 1fr;
+    }
+    .sticky-card {
+        position: static;
+    }
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+}
