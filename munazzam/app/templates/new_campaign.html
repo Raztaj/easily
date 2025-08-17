@@ -31,10 +31,19 @@
                 </div>
             </div>
             <div class="card">
-                <h2>2. صياغة الرسالة</h2>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2>2. صياغة الرسالة</h2>
+                    <button type="button" id="save-template-btn" class="btn btn-sm btn-outline-primary">حفظ كقالب</button>
+                </div>
+                <div class="form-group">
+                    <label for="template-select">تحميل قالب جاهز</label>
+                    <select id="template-select" class="form-select">
+                        <option value="">اختر قالب...</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label for="campaign-message">نص الرسالة</label>
-                    <textarea id="campaign-message" name="message" rows="10" placeholder="مرحباً يا [الاسم]، يسعدنا في إيزلي أن نقدم لك..." required></textarea>
+                    <textarea id="campaign-message" name="message" rows="8" placeholder="مرحباً يا [الاسم]، يسعدنا في إيزلي أن نقدم لك..." required></textarea>
                     <p class="description">نصيحة: استخدم المتغير `[الاسم]` لجعل الرسالة شخصية.</p>
                 </div>
             </div>

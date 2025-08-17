@@ -115,5 +115,69 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Initial count update
         updateContactCount();
+
+        // --- Template Logic ---
+        const saveTemplateBtn = document.getElementById('save-template-btn');
+        const templateSelect = document.getElementById('template-select');
+        const campaignMessageTextarea = document.getElementById('campaign-message');
+        let templates = [];
+
+        async function fetchTemplates() {
+            try {
+                const response = await fetch('/api/templates');
+                templates = await response.json();
+
+                templateSelect.innerHTML = '<option value="">اختر قالب...</option>';
+                templates.forEach(t => {
+                    const option = document.createElement('option');
+                    option.value = t.id;
+                    option.textContent = t.name;
+                    templateSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching templates:', error);
+            }
+        }
+
+        templateSelect.addEventListener('change', () => {
+            const selectedTemplate = templates.find(t => t.id == templateSelect.value);
+            if (selectedTemplate) {
+                campaignMessageTextarea.value = selectedTemplate.body;
+            } else {
+                campaignMessageTextarea.value = '';
+            }
+        });
+
+        saveTemplateBtn.addEventListener('click', async () => {
+            const messageBody = campaignMessageTextarea.value.trim();
+            if (!messageBody) {
+                alert('لا يمكن حفظ قالب فارغ.');
+                return;
+            }
+
+            const templateName = prompt('الرجاء إدخال اسم للقالب:', '');
+            if (templateName) {
+                try {
+                    const response = await fetch('/api/templates', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: templateName, body: messageBody }),
+                    });
+                    if (response.ok) {
+                        alert('تم حفظ القالب بنجاح!');
+                        fetchTemplates(); // Refresh the list
+                    } else {
+                        const errorData = await response.json();
+                        alert(`خطأ: ${errorData.error}`);
+                    }
+                } catch (error) {
+                    console.error('Error saving template:', error);
+                    alert('حدث خطأ أثناء حفظ القالب.');
+                }
+            }
+        });
+
+        // Initial fetch of templates
+        fetchTemplates();
     }
 });

@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
-from .models import Contact, Tag, Campaign
+from .models import Contact, Tag, Campaign, MessageTemplate
+from . import db
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -29,3 +30,26 @@ def get_contact_count_by_tags():
     count = query.count()
 
     return jsonify({'count': count})
+
+@bp.route('/templates', methods=['GET'])
+def get_templates():
+    templates = MessageTemplate.query.order_by(MessageTemplate.name).all()
+    return jsonify([{'id': t.id, 'name': t.name, 'body': t.body} for t in templates])
+
+@bp.route('/templates', methods=['POST'])
+def create_template():
+    data = request.get_json()
+    name = data.get('name')
+    body = data.get('body')
+
+    if not name or not body:
+        return jsonify({'error': 'Name and body are required.'}), 400
+
+    if MessageTemplate.query.filter_by(name=name).first():
+        return jsonify({'error': 'A template with this name already exists.'}), 409
+
+    new_template = MessageTemplate(name=name, body=body)
+    db.session.add(new_template)
+    db.session.commit()
+
+    return jsonify({'id': new_template.id, 'name': new_template.name, 'body': new_template.body}), 201

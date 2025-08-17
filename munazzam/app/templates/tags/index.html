@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}إدارة الوسوم{% endblock %}
+
+{% block content %}
+<section id="tags-management" class="view active">
+    <div class="page-header">
+        <h1>إدارة الوسوم (Tags)</h1>
+    </div>
+
+    <div class="row">
+        <!-- Tag List Column -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">قائمة الوسوم</h2>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>اسم الوسم</th>
+                                    <th>عدد جهات الاتصال</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tag in tags %}
+                                <tr>
+                                    <td><span class="tag">{{ tag.name }}</span></td>
+                                    <td>{{ tag.contacts | length }}</td>
+                                    <td>
+                                        <a href="{{ url_for('main.edit_tag', tag_id=tag.id) }}" class="action-link">تعديل</a>
+                                        <form method="post" action="{{ url_for('main.delete_tag', tag_id=tag.id) }}" style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا الوسم؟ سيتم إزالته من جميع جهات الاتصال.');">
+                                            <button type="submit" class="btn btn-link action-link text-danger p-0">حذف</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center">لا توجد وسوم حتى الآن.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Create New Tag Column -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">إنشاء وسم جديد</h2>
+                    <form method="post" action="{{ url_for('main.tags_index') }}">
+                        <div class="form-group">
+                            <label for="name">اسم الوسم</label>
+                            <input type="text" name="name" id="name" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">إنشاء</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

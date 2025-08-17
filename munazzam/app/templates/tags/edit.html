@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}تعديل الوسم{% endblock %}
+
+{% block content %}
+<section id="edit-tag" class="view active">
+    <div class="page-header">
+        <h1>تعديل الوسم: {{ tag.name }}</h1>
+        <a href="{{ url_for('main.tags_index') }}" class="btn btn-secondary">العودة إلى قائمة الوسوم</a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        <div class="form-group">
+                            <label for="name">اسم الوسم الجديد</label>
+                            <input type="text" name="name" id="name" class="form-control" value="{{ tag.name }}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

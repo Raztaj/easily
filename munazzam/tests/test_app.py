@@ -78,7 +78,12 @@ def test_add_and_view_contact_with_tag(client, app):
         contact_id = contact.id
 
     # 3. Go to the edit page and add a tag
-    client.post(f'/contacts/{contact_id}/edit', data={'tags': 'VIP, test-tag'})
+    client.post(f'/contacts/{contact_id}/edit', data={
+        'name': contact.name,
+        'phone': contact.phone,
+        'source': contact.source or '',
+        'tags': 'VIP, test-tag'
+    })
 
     # 4. Check if the tags are displayed on the main contacts page
     response = client.get('/contacts')
@@ -183,6 +188,41 @@ def test_campaign_export(client, app):
         # The number of recipients should NOT have changed.
         assert len(campaign.recipients) == 2
 
+def test_edit_contact_details(client, app):
+    """Test editing a contact's name, phone, and source."""
+    # 1. Setup: Create a contact to edit and another to test uniqueness
+    with app.app_context():
+        c1 = Contact(name='Initial Name', phone='12345')
+        c2 = Contact(name='Other User', phone='54321')
+        db.session.add_all([c1, c2])
+        db.session.commit()
+        contact_id = c1.id
+
+    # 2. Test successful edit
+    response = client.post(f'/contacts/{contact_id}/edit', data={
+        'name': 'Updated Name',
+        'phone': '12345-new',
+        'source': 'Updated Source'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Updated Name' in response.data # Check if new name is on the redirected page
+
+    with app.app_context():
+        updated_contact = db.session.get(Contact, contact_id)
+        assert updated_contact.name == 'Updated Name'
+        assert updated_contact.source == 'Updated Source'
+        assert updated_contact.phone == '12345-new'
+
+    # 3. Test phone number conflict
+    response = client.post(f'/contacts/{contact_id}/edit', data={
+        'name': 'Another Update',
+        'phone': '54321', # Phone number of c2
+        'source': 'Another Source'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    # Check for the Arabic error message "رقم الهاتف ... مسجل بالفعل"
+    assert b'\xd9\x85\xd8\xb3\xd8\xac\xd9\x84 \xd8\xa8\xd8\xa7\xd9\x84\xd9\x81\xd8\xb9\xd9\x84' in response.data
+
 def test_dashboard_stats(client, app):
     """Test that the dashboard displays correct stats."""
     from datetime import datetime, timedelta
@@ -198,7 +238,7 @@ def test_dashboard_stats(client, app):
 
         # Create 1 sent campaign
         sent_campaign = Campaign(name='Sent Campaign', message='Test')
-        sent_campaign.recipients.append(Contact.query.get(1))
+        sent_campaign.recipients.append(db.session.get(Contact, 1))
         db.session.add(sent_campaign)
 
         # Create 1 draft campaign (no recipients)

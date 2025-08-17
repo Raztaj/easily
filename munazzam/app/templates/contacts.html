@@ -6,8 +6,10 @@
 <section id="contacts" class="view active">
     <div class="page-header">
         <h1>إدارة جهات الاتصال</h1>
-        <!-- This button should eventually lead to a dedicated 'add contact' page or modal -->
-        <a href="{{ url_for('main.add_contact') }}" class="btn btn-primary">إضافة جهة اتصال جديدة</a>
+        <div>
+            <a href="{{ url_for('main.import_contacts') }}" class="btn btn-secondary">استيراد من ملف</a>
+            <a href="{{ url_for('main.add_contact') }}" class="btn btn-primary">إضافة جهة اتصال جديدة</a>
+        </div>
     </div>
 
     <div class="toolbar card">

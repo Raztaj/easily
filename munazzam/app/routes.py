@@ -152,30 +152,158 @@ def new_campaign():
 
 @bp.route('/contacts/<int:contact_id>/edit', methods=('GET', 'POST'))
 def edit_contact(contact_id):
-    contact = Contact.query.get_or_404(contact_id)
+    contact = db.get_or_404(Contact, contact_id)
 
     if request.method == 'POST':
-        tags_string = request.form.get('tags', '').strip()
-        if tags_string:
-            tag_names = [name.strip() for name in tags_string.split(',') if name.strip()]
+        # Update contact details
+        contact.name = request.form['name']
+        new_phone = request.form['phone']
+        contact.source = request.form['source']
 
-            for name in tag_names:
-                # Check if tag already exists
-                tag = Tag.query.filter_by(name=name).first()
-                if not tag:
-                    # If not, create it
-                    tag = Tag(name=name)
-                    db.session.add(tag)
+        # Check for phone number uniqueness
+        existing_contact_with_phone = Contact.query.filter(Contact.phone == new_phone, Contact.id != contact_id).first()
+        if existing_contact_with_phone:
+            flash(f'رقم الهاتف {new_phone} مسجل بالفعل لجهة اتصال أخرى.', 'danger')
+        else:
+            contact.phone = new_phone
 
-                # Add the tag to the contact if it's not already there
-                if tag not in contact.tags:
-                    contact.tags.append(tag)
+            # Handle tag management
+            tags_string = request.form.get('tags', '').strip()
+            if tags_string:
+                tag_names = [name.strip() for name in tags_string.split(',') if name.strip()]
+                for name in tag_names:
+                    tag = Tag.query.filter_by(name=name).first()
+                    if not tag:
+                        tag = Tag(name=name)
+                        db.session.add(tag)
+                    if tag not in contact.tags:
+                        contact.tags.append(tag)
 
             db.session.commit()
-            flash('تم تحديث الوسوم بنجاح!', 'success')
+            flash('تم تحديث بيانات جهة الاتصال بنجاح!', 'success')
+
         return redirect(url_for('main.edit_contact', contact_id=contact.id))
 
     return render_template('edit_contact.html', contact=contact)
+
+# Tag Management Routes
+@bp.route('/tags', methods=('GET', 'POST'))
+def tags_index():
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        if name:
+            existing_tag = Tag.query.filter_by(name=name).first()
+            if not existing_tag:
+                new_tag = Tag(name=name)
+                db.session.add(new_tag)
+                db.session.commit()
+                flash(f'تم إنشاء الوسم "{name}" بنجاح.', 'success')
+            else:
+                flash(f'الوسم "{name}" موجود بالفعل.', 'warning')
+        return redirect(url_for('main.tags_index'))
+
+    tags = Tag.query.order_by(Tag.name).all()
+    return render_template('tags/index.html', tags=tags)
+
+@bp.route('/tags/<int:tag_id>/edit', methods=('GET', 'POST'))
+def edit_tag(tag_id):
+    tag = db.get_or_404(Tag, tag_id)
+    if request.method == 'POST':
+        new_name = request.form.get('name', '').strip()
+        if new_name:
+            existing_tag = Tag.query.filter(Tag.name == new_name, Tag.id != tag_id).first()
+            if not existing_tag:
+                tag.name = new_name
+                db.session.commit()
+                flash('تم تحديث اسم الوسم بنجاح.', 'success')
+                return redirect(url_for('main.tags_index'))
+            else:
+                flash(f'الوسم "{new_name}" موجود بالفعل.', 'danger')
+        else:
+            flash('اسم الوسم لا يمكن أن يكون فارغًا.', 'danger')
+        return redirect(url_for('main.edit_tag', tag_id=tag.id))
+
+    return render_template('tags/edit.html', tag=tag)
+
+@bp.route('/tags/<int:tag_id>/delete', methods=['POST'])
+def delete_tag(tag_id):
+    tag = db.get_or_404(Tag, tag_id)
+    # Dissociate from all contacts before deleting
+    tag.contacts = []
+    db.session.delete(tag)
+    db.session.commit()
+    flash(f'تم حذف الوسم "{tag.name}" بنجاح.', 'success')
+    return redirect(url_for('main.tags_index'))
+
+
+@bp.route('/contacts/import', methods=['GET', 'POST'])
+def import_contacts():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('لم يتم العثور على جزء الملف.', 'danger')
+            return redirect(request.url)
+
+        file = request.files['file']
+        if file.filename == '':
+            flash('لم يتم تحديد أي ملف.', 'danger')
+            return redirect(request.url)
+
+        if file and file.filename.endswith('.xlsx'):
+            try:
+                tags_string = request.form.get('tags', '')
+                tag_objects = []
+                if tags_string:
+                    tag_names = [name.strip() for name in tags_string.split(',') if name.strip()]
+                    for tag_name in tag_names:
+                        tag = Tag.query.filter_by(name=tag_name).first()
+                        if not tag:
+                            tag = Tag(name=tag_name)
+                            db.session.add(tag)
+                        tag_objects.append(tag)
+
+                try:
+                    from openpyxl import load_workbook
+                    workbook = load_workbook(filename=file)
+                except Exception as e:
+                    flash(f'خطأ في قراءة ملف Excel: {e}', 'danger')
+                    return redirect(request.url)
+
+                sheet = workbook.active
+
+                imported_count = 0
+                skipped_count = 0
+
+                existing_phones = {c.phone for c in Contact.query.all()}
+
+                for row in sheet.iter_rows(min_row=2, values_only=True): # Skip header row
+                    name, phone, source = row[0], row[1], row[2]
+
+                    if not phone or str(phone) in existing_phones:
+                        skipped_count += 1
+                        continue
+
+                    new_contact = Contact(name=str(name), phone=str(phone), source=str(source or ''))
+                    new_contact.tags.extend(tag_objects)
+                    db.session.add(new_contact)
+
+                    existing_phones.add(str(phone))
+                    imported_count += 1
+
+                db.session.commit()
+                flash(f'تم استيراد {imported_count} جهة اتصال جديدة بنجاح. تم تخطي {skipped_count} صف (مكرر أو بدون رقم هاتف).', 'success')
+
+            except Exception as e:
+                db.session.rollback()
+                flash(f'حدث خطأ غير متوقع: {e}', 'danger')
+
+            return redirect(url_for('main.list_contacts'))
+
+        else:
+            flash('صيغة الملف غير مدعومة. الرجاء تحميل ملف .xlsx فقط.', 'danger')
+            return redirect(request.url)
+
+    return render_template('contacts/import.html')
+
 
 @bp.route('/contacts/new', methods=('GET', 'POST'))
 def add_contact():

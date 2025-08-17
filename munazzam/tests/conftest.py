@@ -39,3 +39,10 @@ def client(app):
 def runner(app):
     """A test runner for the `flask` command."""
     return app.test_cli_runner()
+
+@pytest.fixture(autouse=True)
+def cleanup_session(app):
+    """Ensure the session is closed after each test to prevent stale data."""
+    yield
+    with app.app_context():
+        db.session.close()

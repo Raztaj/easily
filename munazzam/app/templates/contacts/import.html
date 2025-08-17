@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}استيراد جهات الاتصال{% endblock %}
+
+{% block content %}
+<section id="import-contacts" class="view active">
+    <div class="page-header">
+        <h1>استيراد جهات الاتصال من ملف</h1>
+        <a href="{{ url_for('main.list_contacts') }}" class="btn btn-secondary">العودة إلى القائمة</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">تعليمات الاستيراد</h2>
+            <p>يمكنك استيراد جهات الاتصال من ملف Excel (.xlsx). يجب أن يكون الملف منسقًا على النحو التالي:</p>
+            <ul>
+                <li><strong>العمود A:</strong> الاسم الكامل (Full Name)</li>
+                <li><strong>العمود B:</strong> رقم الهاتف (Phone Number)</li>
+                <li><strong>العمود C:</strong> المصدر (Source) - (اختياري)</li>
+            </ul>
+            <p>سيتم تجاهل أي صفوف تحتوي على أرقام هواتف موجودة بالفعل في النظام.</p>
+            <hr>
+            <form method="post" enctype="multipart/form-data">
+                <div class="form-group mb-3">
+                    <label for="file" class="form-label">اختر ملف Excel (.xlsx)</label>
+                    <input type="file" name="file" id="file" class="form-control" accept=".xlsx" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="tags">وسوم ليتم إضافتها لجميع جهات الاتصال الجديدة</label>
+                    <input type="text" id="tags" name="tags" class="form-control" placeholder="اكتب الوسوم مفصولة بفاصلة...">
+                </div>
+                <button type="submit" class="btn btn-primary">بدء الاستيراد</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

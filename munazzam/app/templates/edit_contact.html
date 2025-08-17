@@ -8,37 +8,54 @@
         <h1>تعديل: {{ contact.name }}</h1>
         <a href="{{ url_for('main.list_contacts') }}" class="btn btn-secondary">العودة إلى القائمة</a>
     </div>
-
-    <div class="card">
-        <div class="card-body">
-            <h2 class="card-title">البيانات الحالية</h2>
-            <p><strong>الاسم:</strong> {{ contact.name }}</p>
-            <p><strong>رقم الهاتف:</strong> {{ contact.phone }}</p>
-            <p><strong>المصدر:</strong> {{ contact.source }}</p>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-body">
-            <h2 class="card-title">إدارة الوسوم (Tags)</h2>
-            <p>الوسوم الحالية:</p>
-            <div>
-                {% for tag in contact.tags %}
-                    <span class="tag">{{ tag.name }}</span>
-                {% else %}
-                    <p class="text-muted">لا توجد وسوم مرتبطة بجهة الاتصال هذه.</p>
-                {% endfor %}
-            </div>
-            <hr>
-            <form method="post">
-                <div class="form-group">
-                    <label for="tags">إضافة وسوم جديدة</label>
-                    <input type="text" id="tags" name="tags" class="form-control" placeholder="اكتب الوسوم مفصولة بفاصلة (e.g. tag1, tag2)">
-                    <p class="description">سيتم إنشاء أي وسوم غير موجودة تلقائيًا.</p>
+    <form method="post">
+        <div class="row">
+            <!-- Contact Details Column -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">بيانات جهة الاتصال</h2>
+                        <div class="form-group">
+                            <label for="name">الاسم الكامل</label>
+                            <input type="text" id="name" name="name" class="form-control" value="{{ contact.name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">رقم الهاتف</label>
+                            <input type="text" id="phone" name="phone" class="form-control" value="{{ contact.phone }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="source">المصدر</label>
+                            <input type="text" id="source" name="source" class="form-control" value="{{ contact.source or '' }}">
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary">حفظ الوسوم</button>
-            </form>
+            </div>
+            <!-- Tag Management Column -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">إدارة الوسوم (Tags)</h2>
+                        <p>الوسوم الحالية:</p>
+                        <div>
+                            {% for tag in contact.tags %}
+                                <span class="tag">{{ tag.name }}</span>
+                            {% else %}
+                                <p class="text-muted">لا توجد وسوم.</p>
+                            {% endfor %}
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label for="tags">إضافة وسوم جديدة</label>
+                            <input type="text" id="tags" name="tags" class="form-control" placeholder="اكتب الوسوم مفصولة بفاصلة...">
+                            <p class="description">سيتم إنشاء أي وسوم غير موجودة تلقائيًا.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+        </div>
+    </form>
 </section>
 {% endblock %}
